@@ -140,9 +140,7 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
         providerId: 'google-drive',
         icon: (props) => GoogleDriveIcon(props),
         baseProviderIcon: (props) => GoogleIcon(props),
-        scopes: [
-          'https://www.googleapis.com/auth/drive', // Full Drive access (read + write all files)
-        ],
+        scopes: ['https://www.googleapis.com/auth/drive'],
         scopeHints: ['drive'],
       },
       'google-docs': {
@@ -152,9 +150,7 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
         providerId: 'google-docs',
         icon: (props) => GoogleDocsIcon(props),
         baseProviderIcon: (props) => GoogleIcon(props),
-        scopes: [
-          'https://www.googleapis.com/auth/drive', // Full Drive access (read + write all files)
-        ],
+        scopes: ['https://www.googleapis.com/auth/drive'],
         scopeHints: ['docs'],
       },
       'google-sheets': {
@@ -164,9 +160,7 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
         providerId: 'google-sheets',
         icon: (props) => GoogleSheetsIcon(props),
         baseProviderIcon: (props) => GoogleIcon(props),
-        scopes: [
-          'https://www.googleapis.com/auth/drive', // Full Drive access (read + write all files)
-        ],
+        scopes: ['https://www.googleapis.com/auth/drive'],
         scopeHints: ['sheets'],
       },
       'google-forms': {
