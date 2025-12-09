@@ -224,37 +224,48 @@ export async function executeTool(
     }
 
     // Check for direct execution (no HTTP request needed)
-    if (tool.directExecution) {
+    // Only use directExecution on server-side to avoid client bundling issues
+    if (tool.directExecution && typeof window === 'undefined') {
       logger.info(`[${requestId}] Using directExecution for ${toolId}`)
-      const result = await tool.directExecution(contextParams)
+      try {
+        const result = await tool.directExecution(contextParams)
 
-      // Apply post-processing if available and not skipped
-      let finalResult = result
-      if (tool.postProcess && result.success && !skipPostProcess) {
-        try {
-          finalResult = await tool.postProcess(result, contextParams, executeTool)
-        } catch (error) {
-          logger.error(`[${requestId}] Post-processing error for ${toolId}:`, {
-            error: error instanceof Error ? error.message : String(error),
-          })
-          finalResult = result
+        // Apply post-processing if available and not skipped
+        let finalResult = result
+        if (tool.postProcess && result.success && !skipPostProcess) {
+          try {
+            finalResult = await tool.postProcess(result, contextParams, executeTool)
+          } catch (error) {
+            logger.error(`[${requestId}] Post-processing error for ${toolId}:`, {
+              error: error instanceof Error ? error.message : String(error),
+            })
+            finalResult = result
+          }
         }
-      }
 
-      // Process file outputs if execution context is available
-      finalResult = await processFileOutputs(finalResult, tool, executionContext)
+        // Process file outputs if execution context is available
+        finalResult = await processFileOutputs(finalResult, tool, executionContext)
 
-      // Add timing data to the result
-      const endTime = new Date()
-      const endTimeISO = endTime.toISOString()
-      const duration = endTime.getTime() - startTime.getTime()
-      return {
-        ...finalResult,
-        timing: {
-          startTime: startTimeISO,
-          endTime: endTimeISO,
-          duration,
-        },
+        // Add timing data to the result
+        const endTime = new Date()
+        const endTimeISO = endTime.toISOString()
+        const duration = endTime.getTime() - startTime.getTime()
+        return {
+          ...finalResult,
+          timing: {
+            startTime: startTimeISO,
+            endTime: endTimeISO,
+            duration,
+          },
+        }
+      } catch (directExecError: any) {
+        // Fall back to HTTP request if directExecution signals to skip
+        if (directExecError.message === '__SKIP_DIRECT_EXECUTION__') {
+          logger.info(`[${requestId}] directExecution requested fallback to HTTP for ${toolId}`)
+          // Continue to HTTP request handling below
+        } else {
+          throw directExecError
+        }
       }
     }
 

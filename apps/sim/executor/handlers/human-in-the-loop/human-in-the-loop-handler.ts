@@ -554,26 +554,18 @@ export class HumanInTheLoopBlockHandler implements BlockHandler {
       return []
     }
 
-    const { blockData: collectedBlockData, blockNameMapping: collectedBlockNameMapping } =
-      collectBlockData(ctx)
-
-    const blockDataWithPause: Record<string, any> = { ...collectedBlockData }
-    const blockNameMappingWithPause: Record<string, string> = { ...collectedBlockNameMapping }
+    const { blockData: collectedBlockData } = collectBlockData(ctx)
 
     const pauseBlockId = block.id
-    const pauseBlockName = block.metadata?.name
 
     const pauseOutput: Record<string, any> = {
-      ...(blockDataWithPause[pauseBlockId] || {}),
+      ...(collectedBlockData[pauseBlockId] || {}),
     }
 
     if (context.resumeLinks) {
       if (context.resumeLinks.uiUrl) {
         pauseOutput.url = context.resumeLinks.uiUrl
       }
-      // if (context.resumeLinks.apiUrl) {
-      //   pauseOutput.apiUrl = context.resumeLinks.apiUrl
-      // } // Hidden from output
     }
 
     if (Array.isArray(context.inputFormat)) {
@@ -585,13 +577,6 @@ export class HumanInTheLoopBlockHandler implements BlockHandler {
           }
         }
       }
-    }
-
-    blockDataWithPause[pauseBlockId] = pauseOutput
-
-    if (pauseBlockName) {
-      blockNameMappingWithPause[pauseBlockName] = pauseBlockId
-      blockNameMappingWithPause[normalizeBlockName(pauseBlockName)] = pauseBlockId
     }
 
     const notificationPromises = tools.map<Promise<NotificationToolResult>>(async (toolConfig) => {
@@ -608,6 +593,8 @@ export class HumanInTheLoopBlockHandler implements BlockHandler {
           }
         }
 
+        // Note: We don't pass full blockData to notification tools as they don't need it
+        // and it would cause JSON serialization issues with large data (10MB+)
         const toolParams = {
           ...toolConfig.params,
           _pauseContext: {
@@ -624,8 +611,6 @@ export class HumanInTheLoopBlockHandler implements BlockHandler {
             workflowId: ctx.workflowId,
             workspaceId: ctx.workspaceId,
           },
-          blockData: blockDataWithPause,
-          blockNameMapping: blockNameMappingWithPause,
         }
 
         const result = await executeTool(toolId, toolParams, false, false, ctx)
