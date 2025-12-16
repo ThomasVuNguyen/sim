@@ -13,7 +13,7 @@ const DB_CONTAINER = 'simstudio-db'
 const MIGRATIONS_CONTAINER = 'simstudio-migrations'
 const REALTIME_CONTAINER = 'simstudio-realtime'
 const APP_CONTAINER = 'simstudio-app'
-const DEFAULT_PORT = '3000'
+const DEFAULT_PORT = '2222'
 
 const program = new Command()
 

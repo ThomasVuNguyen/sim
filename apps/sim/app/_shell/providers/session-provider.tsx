@@ -4,6 +4,8 @@ import type React from 'react'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import posthog from 'posthog-js'
 import { client } from '@/lib/auth/auth-client'
+import { ANONYMOUS_USER } from '@/lib/auth/constants'
+import { isAuthDisabled } from '@/lib/core/config/feature-flags'
 
 export type AppSession = {
   user: {
@@ -40,6 +42,23 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsPending(true)
       setError(null)
+      if (isAuthDisabled) {
+        setData({
+          user: {
+            id: ANONYMOUS_USER.id,
+            email: ANONYMOUS_USER.email,
+            emailVerified: ANONYMOUS_USER.emailVerified,
+            name: ANONYMOUS_USER.name,
+            image: ANONYMOUS_USER.image,
+          },
+          session: {
+            id: 'anonymous-session',
+            userId: ANONYMOUS_USER.id,
+          },
+        })
+        return
+      }
+
       const res = await client.getSession()
       setData(res?.data ?? null)
     } catch (e) {

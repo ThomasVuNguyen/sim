@@ -23,7 +23,7 @@ timeout = 10000
 
 [run]
 # Environment setting for running scripts
-env = { NEXT_PUBLIC_APP_URL = "http://localhost:3000" }
+env = { NEXT_PUBLIC_APP_URL = "http://localhost:2222" }
 
 [build]
 # Build configuration

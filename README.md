@@ -13,6 +13,49 @@
   <a href="https://docs.sim.ai" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Docs-6F3DFA.svg" alt="Documentation"></a>
 </p>
 
+## Run the app (self-hosted)
+
+**First-time setup (configure env):**
+
+```bash
+cd sim/apps/sim
+cp .env.example .env
+```
+
+Edit `sim/apps/sim/.env` and set at least:
+- *(Single-user mode is the default for self-hosted builds; you do not need to configure auth.)*
+- `NEXT_PUBLIC_APP_URL=http://localhost:2222`
+- `BETTER_AUTH_URL=http://localhost:2222`
+- `NEXT_PUBLIC_SOCKET_URL=http://localhost:3002`
+- `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/simstudio`
+- `BETTER_AUTH_SECRET=$(openssl rand -hex 32)`
+- `ENCRYPTION_KEY=$(openssl rand -hex 32)`
+
+**Dev (app + realtime):**
+
+```bash
+cd sim
+bun install
+bun run dev:full
+```
+
+**Dev on 0.0.0.0 (LAN/remote access):**
+
+```bash
+cd sim/apps/sim
+NEXT_PUBLIC_APP_URL=http://<your-host-or-ip>:2222 \
+BETTER_AUTH_URL=http://<your-host-or-ip>:2222 \
+NEXT_PUBLIC_SOCKET_URL=http://<your-host-or-ip>:3002 \
+bun run dev:full:public
+```
+
+**Production (Docker):**
+
+```bash
+cd sim
+docker compose -f docker-compose.prod.yml up -d
+```
+
 ### Build Workflows with Ease
 Design agent workflows visually on a canvas—connect agents, tools, and blocks, then run them instantly.
 
@@ -45,7 +88,7 @@ Upload documents to a vector store and let agents answer questions grounded in y
 ```bash
 npx simstudio
 ```
-→ http://localhost:3000
+→ http://localhost:2222
 
 #### Note
 Docker must be installed and running on your machine.
@@ -54,7 +97,7 @@ Docker must be installed and running on your machine.
 
 | Flag | Description |
 |------|-------------|
-| `-p, --port <port>` | Port to run Sim on (default `3000`) |
+| `-p, --port <port>` | Port to run Sim on (default `2222`) |
 | `--no-pull` | Skip pulling latest Docker images |
 
 ### Self-hosted: Docker Compose
@@ -70,7 +113,7 @@ cd sim
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Access the application at [http://localhost:3000/](http://localhost:3000/)
+Access the application at [http://localhost:2222/](http://localhost:2222/)
 
 #### Using Local Models with Ollama
 
@@ -84,7 +127,7 @@ docker compose -f docker-compose.ollama.yml --profile setup up -d
 docker compose -f docker-compose.ollama.yml --profile cpu --profile setup up -d
 ```
 
-Wait for the model to download, then visit [http://localhost:3000](http://localhost:3000). Add more models with:
+Wait for the model to download, then visit [http://localhost:2222](http://localhost:2222). Add more models with:
 ```bash
 docker compose -f docker-compose.ollama.yml exec ollama ollama pull llama3.1:8b
 ```
@@ -202,6 +245,16 @@ bun run dev:full
 
 This starts both the main Next.js application and the realtime socket server required for full functionality.
 
+**Bind to all interfaces (0.0.0.0) for LAN/remote access:**
+
+```bash
+cd apps/sim
+NEXT_PUBLIC_APP_URL=http://<your-host-or-ip>:2222 \
+BETTER_AUTH_URL=http://<your-host-or-ip>:2222 \
+NEXT_PUBLIC_SOCKET_URL=http://<your-host-or-ip>:3002 \
+bun run dev:full:public
+```
+
 **Alternative - run servers separately:**
 
 Next.js app (from project root):
@@ -230,7 +283,7 @@ Key environment variables for self-hosted deployments (see `apps/sim/.env.exampl
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | PostgreSQL connection string with pgvector |
 | `BETTER_AUTH_SECRET` | Yes | Auth secret (`openssl rand -hex 32`) |
-| `BETTER_AUTH_URL` | Yes | Your app URL (e.g., `http://localhost:3000`) |
+| `BETTER_AUTH_URL` | Yes | Your app URL (e.g., `http://localhost:2222`) |
 | `NEXT_PUBLIC_APP_URL` | Yes | Public app URL (same as above) |
 | `ENCRYPTION_KEY` | Yes | Encryption key (`openssl rand -hex 32`) |
 | `OLLAMA_URL` | No | Ollama server URL (default: `http://localhost:11434`) |
@@ -255,7 +308,7 @@ Ensure PostgreSQL has the pgvector extension installed. When using Docker, wait 
 
 ### Port conflicts
 
-If ports 3000, 3002, or 5432 are in use, configure alternatives:
+If ports 2222, 3002, or 5432 are in use, configure alternatives:
 
 ```bash
 # Custom ports

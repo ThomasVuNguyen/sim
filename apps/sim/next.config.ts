@@ -101,6 +101,7 @@ const nextConfig: NextConfig = {
             }
           })()
         : []),
+      'localhost:2222',
       'localhost:3000',
       'localhost:3001',
     ],

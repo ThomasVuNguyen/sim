@@ -13,6 +13,7 @@ const logger = createLogger('SocketIOConfig')
 function getAllowedOrigins(): string[] {
   const allowedOrigins = [
     getBaseUrl(),
+    'http://localhost:2222',
     'http://localhost:3000',
     'http://localhost:3001',
     ...(env.ALLOWED_ORIGINS?.split(',') || []),

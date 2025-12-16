@@ -46,6 +46,7 @@ import {
   isAuthDisabled,
   isBillingEnabled,
   isEmailVerificationEnabled,
+  isDev,
   isRegistrationDisabled,
 } from '@/lib/core/config/feature-flags'
 import { getBaseUrl } from '@/lib/core/utils/urls'
@@ -71,10 +72,23 @@ if (validStripeKey) {
 
 export const auth = betterAuth({
   baseURL: getBaseUrl(),
-  trustedOrigins: [
-    getBaseUrl(),
-    ...(env.NEXT_PUBLIC_SOCKET_URL ? [env.NEXT_PUBLIC_SOCKET_URL] : []),
-  ].filter(Boolean),
+  trustedOrigins: Array.from(
+    new Set(
+      [
+        // Primary app origin (must match what the browser uses)
+        getBaseUrl(),
+
+        // Common local dev ports (prevents INVALID_ORIGIN when changing dev port)
+        ...(isDev ? ['http://localhost:2222', 'http://127.0.0.1:2222'] : []),
+
+        // Optional allowlist for additional origins (e.g. http://<server-ip>:2222)
+        ...(env.ALLOWED_ORIGINS?.split(',').map((s) => s.trim()).filter(Boolean) || []),
+
+        // Realtime server origin (for socket features / cross-origin cookies)
+        ...(env.NEXT_PUBLIC_SOCKET_URL ? [env.NEXT_PUBLIC_SOCKET_URL] : []),
+      ].filter(Boolean)
+    )
+  ),
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema,

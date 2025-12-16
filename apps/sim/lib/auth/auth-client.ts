@@ -14,8 +14,20 @@ import { isBillingEnabled } from '@/lib/core/config/feature-flags'
 import { getBaseUrl } from '@/lib/core/utils/urls'
 import { SessionContext, type SessionHookResult } from '@/app/_shell/providers/session-provider'
 
+function getAuthClientBaseUrl(): string {
+  // In the browser, always prefer the current origin. This prevents subtle
+  // misconfigurations (e.g. NEXT_PUBLIC_APP_URL still set to :3000 while the dev server
+  // runs on :2222) from breaking auth flows via cross-origin/CORS.
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin
+  }
+
+  // Server-side (or during build), fall back to the configured public base URL.
+  return getBaseUrl()
+}
+
 export const client = createAuthClient({
-  baseURL: getBaseUrl(),
+  baseURL: getAuthClientBaseUrl(),
   plugins: [
     emailOTPClient(),
     genericOAuthClient(),

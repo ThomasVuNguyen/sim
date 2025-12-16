@@ -38,12 +38,14 @@ export const isEmailVerificationEnabled = isTruthy(env.EMAIL_VERIFICATION_ENABLE
 /**
  * Is authentication disabled (for self-hosted deployments behind private networks)
  */
-export const isAuthDisabled = isTruthy(env.DISABLE_AUTH)
+// Default to single-user mode for all non-hosted deployments.
+// Hosted deployments can still enable auth normally.
+export const isAuthDisabled = isTruthy(env.DISABLE_AUTH) || !isHosted
 
 /**
  * Is user registration disabled
  */
-export const isRegistrationDisabled = isTruthy(env.DISABLE_REGISTRATION)
+export const isRegistrationDisabled = isTruthy(env.DISABLE_REGISTRATION) || isAuthDisabled
 
 /**
  * Is Trigger.dev enabled for async job processing

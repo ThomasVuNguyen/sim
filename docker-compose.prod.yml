@@ -3,16 +3,16 @@ services:
     image: ghcr.io/simstudioai/simstudio:latest
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - '2222:3000'
     deploy:
       resources:
         limits:
-          memory: 8G
+          memory: 4G
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-simstudio}
-      - BETTER_AUTH_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - BETTER_AUTH_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:2222}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:2222}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-your_auth_secret_here}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-your_encryption_key_here}
       - COPILOT_API_KEY=${COPILOT_API_KEY}
@@ -45,8 +45,8 @@ services:
           memory: 4G
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-simstudio}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:2222}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:2222}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-your_auth_secret_here}
     depends_on:
       db:

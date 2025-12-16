@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@/lib/auth/auth-client'
+import { isAuthDisabled } from '@/lib/core/config/feature-flags'
 import { createLogger } from '@/lib/logs/console/logger'
 
 const logger = createLogger('WorkspacePage')
@@ -20,8 +21,10 @@ export default function WorkspacePage() {
 
       // If user is not authenticated, redirect to login
       if (!session?.user) {
-        logger.info('User not authenticated, redirecting to login')
-        router.replace('/login')
+        if (!isAuthDisabled) {
+          logger.info('User not authenticated, redirecting to login')
+          router.replace('/login')
+        }
         return
       }
 
@@ -90,7 +93,9 @@ export default function WorkspacePage() {
           }
 
           // If we can't create a workspace, redirect to login to reset state
-          router.replace('/login')
+          if (!isAuthDisabled) {
+            router.replace('/login')
+          }
           return
         }
 

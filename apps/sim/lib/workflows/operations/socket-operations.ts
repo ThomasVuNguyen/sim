@@ -1,4 +1,6 @@
 import { client } from '@/lib/auth/auth-client'
+import { ANONYMOUS_USER_ID } from '@/lib/auth/constants'
+import { isAuthDisabled } from '@/lib/core/config/feature-flags'
 import { createLogger } from '@/lib/logs/console/logger'
 import { useOperationQueueStore } from '@/stores/operation-queue/store'
 import type { WorkflowState } from '@/stores/workflows/workflow/types'
@@ -6,6 +8,10 @@ import type { WorkflowState } from '@/stores/workflows/workflow/types'
 const logger = createLogger('WorkflowSocketOperations')
 
 async function resolveUserId(): Promise<string> {
+  if (isAuthDisabled) {
+    return ANONYMOUS_USER_ID
+  }
+
   try {
     const sessionResult = await client.getSession()
     const userId = sessionResult.data?.user?.id
